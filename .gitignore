@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / TypeScript
+node_modules/
+dist/
+coverage/
+*.js.map
+*.d.ts.map
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
