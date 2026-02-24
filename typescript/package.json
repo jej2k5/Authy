@@ -1,0 +1,29 @@
+{
+  "name": "@authy/core",
+  "version": "0.1.0",
+  "description": "Multi-provider authentication framework supporting local, Google, M365, and SSO",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": ["authentication", "oauth", "oidc", "saml", "google", "m365", "sso"],
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "jose": "^5.9.6",
+    "openid-client": "^5.7.0",
+    "samlify": "^2.8.10"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.2"
+  }
+}
