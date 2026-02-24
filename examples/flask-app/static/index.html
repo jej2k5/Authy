@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Authy Flask Example</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 60px auto; padding: 0 16px; }
+    h1 { font-size: 1.5rem; }
+    label { display: block; margin-top: 10px; font-size: 14px; font-weight: 600; }
+    input { display: block; width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
+    button, .btn { display: inline-block; margin-top: 12px; padding: 9px 18px; background: #0070f3; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; }
+    .btn-outline { background: #fff; color: #333; border: 1px solid #ccc; }
+    .error { color: #c00; font-size: 14px; margin-top: 6px; }
+    .card { border: 1px solid #eee; border-radius: 8px; padding: 20px; }
+    hr { border: none; border-top: 1px solid #eee; margin: 20px 0; }
+    pre { background: #f5f5f5; padding: 12px; border-radius: 4px; font-size: 13px; overflow: auto; }
+    #user-panel { display: none; }
+    .providers { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Authy — Flask Example</h1>
+
+  <div id="login-panel" class="card">
+    <h2 style="margin-top:0">Sign in</h2>
+    <form id="login-form">
+      <label for="username">Username</label>
+      <input id="username" name="username" placeholder="alice" autocomplete="username" required />
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" placeholder="password123" required />
+      <p class="error" id="login-error"></p>
+      <button type="submit">Sign in with password</button>
+    </form>
+    <div id="oauth-area"></div>
+  </div>
+
+  <div id="user-panel" class="card">
+    <h2 style="margin-top:0">Signed in</h2>
+    <p id="user-info"></p>
+    <button id="me-btn">Fetch /api/me</button>
+    <pre id="me-output" style="display:none"></pre>
+    <hr />
+    <button id="logout-btn" class="btn-outline">Sign out</button>
+  </div>
+
+  <p style="font-size:13px;color:#666;margin-top:16px">
+    Test: <code>alice / password123</code> &nbsp;|&nbsp; <code>bob / letmein</code>
+  </p>
+
+  <script>
+    async function init() {
+      const { providers } = await fetch('/api/providers').then(r => r.json());
+      const area = document.getElementById('oauth-area');
+      const oauthProviders = providers.filter(p => p !== 'local');
+      if (oauthProviders.length) {
+        area.innerHTML = '<hr><div class="providers">' +
+          (providers.includes('google') ? '<a href="/auth/google" class="btn btn-outline">Sign in with Google</a>' : '') +
+          (providers.includes('m365')   ? '<a href="/auth/m365"   class="btn btn-outline">Sign in with Microsoft 365</a>' : '') +
+          '</div>';
+      }
+      const params = new URLSearchParams(location.search);
+      if (params.get('error')) document.getElementById('login-error').textContent = 'OAuth sign-in failed.';
+      tryFetchUser();
+    }
+
+    async function tryFetchUser() {
+      const res = await fetch('/api/me');
+      if (res.ok) { const { user } = await res.json(); showUser(user); }
+    }
+
+    function showUser(user) {
+      document.getElementById('login-panel').style.display = 'none';
+      document.getElementById('user-panel').style.display = 'block';
+      document.getElementById('user-info').textContent =
+        `${user.name} (${user.email}) — provider: ${user.provider}`;
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('login-error').textContent = '';
+      const form = new FormData(e.target);
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: form.get('username'), password: form.get('password') }),
+      });
+      const data = await res.json();
+      if (res.ok) showUser(data.user);
+      else document.getElementById('login-error').textContent = data.error;
+    });
+
+    document.getElementById('me-btn').addEventListener('click', async () => {
+      const data = await fetch('/api/me').then(r => r.json());
+      const pre = document.getElementById('me-output');
+      pre.style.display = 'block';
+      pre.textContent = JSON.stringify(data, null, 2);
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await fetch('/auth/logout', { method: 'POST' });
+      document.getElementById('user-panel').style.display = 'none';
+      document.getElementById('login-panel').style.display = 'block';
+      document.getElementById('me-output').style.display = 'none';
+    });
+
+    init();
+  </script>
+</body>
+</html>
