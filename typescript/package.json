@@ -4,14 +4,35 @@
   "description": "Multi-provider authentication framework supporting local, Google, M365, and SSO",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "lint": "tsc --noEmit"
   },
   "keywords": ["authentication", "oauth", "oidc", "saml", "google", "m365", "sso"],
+  "author": "Authy Contributors",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jej2k5/Authy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jej2k5/Authy/issues"
+  },
+  "homepage": "https://github.com/jej2k5/Authy#readme",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "jose": "^5.9.6",
